@@ -1,6 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/app.reducer';
 import { Todo } from '../models/todo.model';
+import { completeTodo, deleteTodo, editTodo } from '../todo.actions';
 
 @Component({
   selector: 'app-todo-list-item',
@@ -12,19 +15,32 @@ export class TodoListItemComponent implements OnInit {
   titleInput!: FormControl;
   isEditing!: boolean;
 
-  constructor() {}
+  constructor(private store: Store<AppState>) {}
 
   ngOnInit(): void {
     this.isEditing = false;
     this.titleInput = new FormControl(this.todo.title, Validators.required);
   }
 
-  completeTask(): void {}
+  completeTask(): void {
+    this.store.dispatch(completeTodo({ id: this.todo.id }));
+  }
+
   editTask(): void {
     this.isEditing = true;
+    this.titleInput.setValue(this.todo.title);
   }
-  deleteTask(): void {}
+
+  deleteTask(): void {
+    this.store.dispatch(deleteTodo({ id: this.todo.id }));
+  }
+
   submitTask(): void {
     this.isEditing = false;
+    if (!this.titleInput.invalid && this.titleInput.value !== this.todo.title) {
+      this.store.dispatch(
+        editTodo({ id: this.todo.id, title: this.titleInput.value })
+      );
+    }
   }
 }
