@@ -1,9 +1,11 @@
 import { createReducer, on } from '@ngrx/store';
 import { Todo } from '../models/todo.model';
 import {
+  completeAllTodos,
   completeTodo,
   createTodo,
   deleteTodo,
+  deleteTodosCompleted,
   editTodo,
   getAllTodos,
   getAllTodosError,
@@ -49,6 +51,23 @@ const _todoReducer = createReducer(
       }),
     ],
   })),
+  on(completeAllTodos, (state) => ({
+    ...state,
+    loading: false,
+    loaded: false,
+    todos: [
+      ...state.todos.map((todo) => {
+        if (!todo.done) {
+          return {
+            ...todo,
+            done: true,
+          };
+        } else {
+          return todo;
+        }
+      }),
+    ],
+  })),
   on(editTodo, (state, { id, title }) => ({
     ...state,
     loading: false,
@@ -71,6 +90,12 @@ const _todoReducer = createReducer(
     loading: false,
     loaded: false,
     todos: [...state.todos.filter((todo) => todo.id !== id)],
+  })),
+  on(deleteTodosCompleted, (state) => ({
+    ...state,
+    loading: false,
+    loaded: false,
+    todos: [...state.todos.filter((todo) => todo.done !== true)],
   })),
   on(getAllTodos, (state) => ({ ...state, loading: true })),
   on(getAllTodosSuccess, (state, { todos }) => ({
