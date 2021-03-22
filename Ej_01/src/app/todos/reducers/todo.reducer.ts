@@ -113,6 +113,5 @@ const _todoReducer = createReducer(
 );
 
 export function todoReducer(state: any, action: any) {
-  // TODO: ???? que tipo lleva esto???
   return _todoReducer(state, action);
 }
