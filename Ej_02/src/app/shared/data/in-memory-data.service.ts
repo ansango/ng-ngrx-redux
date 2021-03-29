@@ -83,13 +83,13 @@ export class InMemoryDataService implements InMemoryDbService {
     const users: User[] = [
       {
         id: 1,
-        type: UserType.TOURIST,
+        userType: UserType.TOURIST,
         email: 'a@a.es',
         password: 'asg',
       },
       {
         id: 2,
-        type: UserType.COMPANY,
+        userType: UserType.COMPANY,
         email: 'b@b.es',
         password: 'asg',
       },

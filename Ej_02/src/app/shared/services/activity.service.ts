@@ -57,7 +57,7 @@ export class ActivityService {
   postActivity(activity: Activity): Observable<Activity> {
     if (
       !this.userService.isUserLogged() ||
-      this.userService.getLocaleUser().type == UserType.TOURIST
+      this.userService.getLocaleUser().userType == UserType.TOURIST
     )
       return throwError(403);
     console.log();

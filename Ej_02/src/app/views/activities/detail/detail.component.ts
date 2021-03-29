@@ -10,7 +10,7 @@ import { UserService } from 'src/app/shared/services/user.service';
 })
 export class DetailComponent implements OnInit {
   @Input() activity?: Activity & { signedUp?: boolean };
-
+  
   constructor(
     private userService: UserService,
     private activityService: ActivityService

@@ -1,16 +1,26 @@
 <div class="header">
   <a routerLink="/" class="logo"> <p>Awesome Activities</p> </a>
   <div class="header-right">
-    <a routerLink="/activities/favorites" *ngIf="isLoggedIn && isTourist"
+    <a
+      routerLink="/activities/favorites"
+      *ngIf="(isAuthenticated$ | async) && (userType$ | async) === 'tourist'"
       >Favorites</a
     >
-    <a routerLink="/my-activities" *ngIf="isLoggedIn && isTourist"
+    <a
+      routerLink="/my-activities"
+      *ngIf="(isAuthenticated$ | async) && (userType$ | async) === 'tourist'"
       >My Activities</a
     >
-    <a routerLink="/profile" *ngIf="isLoggedIn">Profile</a>
-    <a routerLink="/admin" *ngIf="isLoggedIn && isCompany">Admin</a>
-    <a routerLink="/user/login" *ngIf="!isLoggedIn">Sign in</a>
-    <a routerLink="/user/register" *ngIf="!isLoggedIn">Join now</a>
-    <a (click)="logOut()" *ngIf="isLoggedIn">Logout</a>
+    <a routerLink="/profile" *ngIf="isAuthenticated$ | async">Profile</a>
+    <a
+      routerLink="/admin"
+      *ngIf="(isAuthenticated$ | async) && (userType$ | async) === 'company'"
+      >Admin</a
+    >
+    <a routerLink="/user/login" *ngIf="!(isAuthenticated$ | async)">Sign in</a>
+    <a routerLink="/user/register" *ngIf="!(isAuthenticated$ | async)"
+      >Join now</a
+    >
+    <a (click)="onLogout($event)" *ngIf="isAuthenticated$ | async">Logout</a>
   </div>
 </div>

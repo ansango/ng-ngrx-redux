@@ -2,7 +2,7 @@ import { Profile } from './profile';
 
 export interface User {
   id?: number;
-  type: UserType;
+  userType: UserType;
   email: string;
   password?: string;
 }

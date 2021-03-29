@@ -1,4 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { AppState } from 'src/app/store/app.state';
+import { autoLogout } from 'src/app/views/user/state/user.actions';
+import {
+  getUserType,
+  isAuthenticated,
+} from 'src/app/views/user/state/user.selectors';
+import { UserType } from '../../models/user';
 import { UserService } from '../../services/user.service';
 
 @Component({
@@ -7,23 +16,20 @@ import { UserService } from '../../services/user.service';
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit {
-  constructor(private userService: UserService) {}
+  isAuthenticated$?: Observable<boolean>;
+  userType$?: Observable<any>;
+  constructor(
+    private userService: UserService,
+    private store: Store<AppState>
+  ) {}
 
-  ngOnInit(): void {}
-
-  get isLoggedIn(): boolean {
-    return this.userService.isUserLogged();
+  ngOnInit(): void {
+    this.isAuthenticated$ = this.store.select(isAuthenticated);
+    this.userType$ = this.store.select(getUserType);
   }
 
-  get isTourist(): boolean {
-    return this.userService.isUserTourist();
-  }
-
-  get isCompany(): boolean {
-    return this.userService.isUserCompany();
-  }
-
-  logOut(): void {
-    this.userService.logout();
+  onLogout(event: Event) {
+    event.preventDefault();
+    this.store.dispatch(autoLogout());
   }
 }

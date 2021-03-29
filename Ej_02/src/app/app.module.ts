@@ -1,6 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
@@ -12,6 +13,7 @@ import { HeaderComponent } from './shared/components/header/header.component';
 import { MessagesComponent } from './shared/components/messages/messages.component';
 import { InMemoryDataService } from './shared/data/in-memory-data.service';
 import { appReducer } from './store/app.state';
+import { UserEffects } from './views/user/state/user.effects';
 
 @NgModule({
   declarations: [
@@ -27,6 +29,7 @@ import { appReducer } from './store/app.state';
     HttpClientInMemoryWebApiModule.forRoot(InMemoryDataService, {
       dataEncapsulation: false,
     }),
+    EffectsModule.forRoot([UserEffects]),
     StoreModule.forRoot(appReducer),
     StoreDevtoolsModule.instrument({
       logOnly: environment.production, // Restrict extension to log-only mode

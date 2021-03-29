@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { User } from 'src/app/shared/models/user';
 import { MessageService } from 'src/app/shared/services/message.service';
 import { UserService } from 'src/app/shared/services/user.service';
+import { AppState } from 'src/app/store/app.state';
+import { loginStart } from '../state/user.actions';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +21,8 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private formBuilder: FormBuilder,
     private userService: UserService,
-    public messageService: MessageService
+    public messageService: MessageService,
+    private store: Store<AppState>
   ) {}
 
   ngOnInit(): void {
@@ -28,10 +32,9 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  onSubmit(form: FormGroup): void {
-    this.messageService.clear();
-    this.userService.login(form.value).subscribe((resp) => {
-      if (resp) this.router.navigate(['/']);
-    });
+  onSubmit() {
+    const email = this.loginForm.value.email;
+    const password = this.loginForm.value.password;
+    this.store.dispatch(loginStart({ email, password }));
   }
 }

@@ -6,8 +6,11 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { User, UserType } from 'src/app/shared/models/user';
 import { UserService } from 'src/app/shared/services/user.service';
+import { AppState } from 'src/app/store/app.state';
+import { signUpStart } from '../state/user.actions';
 
 @Component({
   selector: 'app-register',
@@ -22,7 +25,8 @@ export class RegisterComponent implements OnInit {
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
-    private userService: UserService
+    private userService: UserService,
+    private store: Store<AppState>
   ) {}
 
   ngOnInit(): void {
@@ -53,10 +57,18 @@ export class RegisterComponent implements OnInit {
     );
   }
   onSubmit(form: FormGroup) {
-    const user = form.value;
+    /*const user = form.value;
     this.userService.register(user).subscribe((resp) => {
       this.router.navigate(['user/login']);
-    });
+    });*/
+
+    const email = this.registerForm.value.email;
+    const password = this.registerForm.value.password;
+    const firstName = this.registerForm.value.firstName;
+    const lastName = this.registerForm.value.lastName;
+    const userType = this.registerForm.value.type;
+
+    this.store.dispatch(signUpStart({ email, password, userType }));
   }
 
   checkPasswordEqual(group: FormGroup): ValidationErrors | null {

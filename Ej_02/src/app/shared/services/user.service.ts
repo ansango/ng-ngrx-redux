@@ -1,11 +1,11 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { filter, first, map, mergeAll, tap } from 'rxjs/operators';
 import { Education } from '../models/education';
 import { Profile } from '../models/profile';
-import { User, UserForm } from '../models/user';
+import { User, UserForm, UserType } from '../models/user';
 import { MessageService } from './message.service';
 import { ProfileService } from './profile.service';
 
@@ -23,6 +23,8 @@ export class UserService {
   private loggedUser: boolean = false;
   private typeUser: string = '';
 
+  message: string = '';
+  timeoutInterval: any;
   constructor(
     private http: HttpClient,
     private profileService: ProfileService,
@@ -30,31 +32,11 @@ export class UserService {
     private router: Router
   ) {}
 
-  login(userForm: User): Observable<User> {
-    const $user = <Observable<User>>this.http.get<User[]>(this.urlUsers).pipe(
-      map((users) => {
-        const _user = users.filter((user) => {
-          return (
-            user.email === userForm.email && user.password === userForm.password
-          );
-        });
-        if (_user.length === 0) return this.log('user not found');
-        this.setLocalUser(_user);
-        return _user;
-      }),
-      first()
-    );
-    $user.subscribe(
-      (user) => ((this.currentUser = user), (this.loggedUser = true))
-    );
-    return $user;
-  }
-
   register(userForm: UserForm): Observable<User> {
     const $user = this.postUser({
       email: userForm.email,
       password: userForm.password,
-      type: userForm.type,
+      userType: userForm.userType,
     });
 
     $user.subscribe((user) => {
@@ -62,7 +44,7 @@ export class UserService {
         id: user.id,
         firstName: userForm.firstName,
         lastName: userForm.lastName,
-        type: userForm.type,
+        type: userForm.userType,
       };
       this.profileService.postProfile(profile);
     });
@@ -73,30 +55,11 @@ export class UserService {
     return this.http.post<User>(this.urlUsers, user, this.httpOptions);
   }
 
-  logout(): void {
-    localStorage.clear();
-    this.loggedUser = false;
-    this.router.navigate(['']);
-  }
-
   getLocaleUser(): User {
     this.currentUser = JSON.parse(localStorage.getItem('currentUser')!) || {};
-    this.typeUser = this.currentUser.type!;
+    this.typeUser = this.currentUser.userType!;
     this.loggedUser = true;
     return this.currentUser;
-  }
-
-  setLocalUser(user: User[]): void {
-    const _user = user[0];
-    localStorage.setItem(
-      'currentUser',
-      JSON.stringify({
-        id: _user.id,
-        email: _user.email,
-        type: _user.type,
-      })
-    );
-    this.typeUser = _user.type;
   }
 
   isUserLogged(): boolean {
@@ -115,7 +78,67 @@ export class UserService {
     return false;
   }
 
-  private log(message: string): void {
-    this.messageService.add(`${message}`);
+  login(email: string, password: string) {
+    return this.http.get<User[]>(this.urlUsers).pipe(
+      map((users) => {
+        const user = users.filter((user) => {
+          return user.email === email && user.password === password;
+        });
+        if (user.length === 0) {
+          this.setErrorMessage('Not user found');
+          throw new Error('Not user found');
+        }
+        return user;
+      })
+    );
+  }
+
+  signUp(email: string, password: string, userType: UserType) {
+    return this.http.post<User>(
+      this.urlUsers,
+      { email, password, userType },
+      this.httpOptions
+    );
+  }
+
+  setUserInLocalStorage(user: User) {
+    localStorage.setItem('userData', JSON.stringify(user));
+  }
+
+  getUserFromLocalStorage() {
+    const userDataString = localStorage.getItem('userData');
+    if (userDataString) {
+      const user = JSON.parse(userDataString);
+      return user;
+    }
+    return null;
+  }
+
+  loggout() {
+    localStorage.removeItem('userData');
+  }
+
+  formatUser(data: any) {
+    if (data && data.length > 0) {
+      return data[0];
+    } else {
+      null;
+    }
+  }
+
+  newFormatUser(data: any): User {
+    return {
+      email: data.email,
+      password: data.password,
+      userType: data.userType,
+    };
+  }
+
+  setErrorMessage(message: string) {
+    this.message = message;
+  }
+
+  getErrorMessage() {
+    return this.message;
   }
 }
